@@ -2,6 +2,10 @@
   "name": "opentrans",
   "version": "1.0.0",
   "description": "Open source project markdown translator with bilingual preview",
+  "author": {
+    "name": "CoderXiaopang",
+    "email": "coderxiaopang@gmail.com"
+  },
   "main": "out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",

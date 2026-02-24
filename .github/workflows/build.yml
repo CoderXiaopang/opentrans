@@ -1,6 +1,5 @@
 name: Build and Release Electron App
 
-# 触发条件：当你推送以 v 开头的标签（如 v1.0.0）时，或者手动在 GitHub 页面触发
 on:
   push:
     tags:
@@ -11,10 +10,9 @@ jobs:
   build:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
-        # 定义三台不同的虚拟机
         include:
           - os: macos-latest
             platform: mac
@@ -30,18 +28,12 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # 建议与你本地开发版本一致
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
         run: npm install
 
-      # 第一步：运行 electron-vite 编译代码
-      - name: Run Vite Build
-        run: npm run build # 对应你 package.json 中的 "electron-vite build"
-
-      # 第二步：运行 electron-builder 进行打包
-      # 注意：这里会根据矩阵自动选择 --mac, --win 或 --linux
       - name: Build and Package
         run: |
           npm run build
@@ -49,7 +41,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # (可选) 将打包好的文件作为 Artifact 存档，方便在 Actions 页面直接下载测试
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -58,4 +49,5 @@ jobs:
             dist/*.dmg
             dist/*.exe
             dist/*.deb
+            dist/*.AppImage
             dist/*.zip
