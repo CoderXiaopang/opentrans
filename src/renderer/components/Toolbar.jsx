@@ -135,7 +135,7 @@ export default function Toolbar() {
           onMouseEnter={e => { e.currentTarget.style.background = 'var(--bg-mid)'; e.currentTarget.style.borderColor = 'rgba(59,130,246,0.5)' }}
           onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'var(--border)' }}
         >
-          <i className={`fa ${isDark ? 'fa-sun-o' : 'fa-moon-o'}`} style={{ color: isDark ? '#FCD34D' : '#6366F1', fontSize: 15 }} />
+          <i className="fa fa-lightbulb-o" style={{ color: isDark ? '#FCD34D' : '#6366F1', fontSize: 15 }} />
         </button>
 
         {/* Settings */}

@@ -41,35 +41,80 @@ function FileNode({ node, depth = 0, selectedRelPath }) {
 
   const cfg = STATUS_CONFIG[node.status] || STATUS_CONFIG.pending
   const isSelected = node.relPath === selectedRelPath
+  const isTranslating = node.status === 'translating'
 
   async function handleClick() {
     if (!srcDir || !translatorDir) return
     const srcPath = `${srcDir}/${node.relPath}`
     const destPath = `${translatorDir}/${node.relPath}`
     setSelectedFile({ relPath: node.relPath, srcPath, destPath })
+    // 只有未翻译的才自动触发翻译
     if (node.status !== 'translated') {
       updateProgress(node.relPath, 'translating')
       await window.electronAPI.translateFile(srcPath, srcDir, translatorDir, settings)
     }
   }
 
+  async function handleRetranslate(e) {
+    e.stopPropagation()
+    if (!srcDir || !translatorDir || isTranslating) return
+    const srcPath = `${srcDir}/${node.relPath}`
+    const destPath = `${translatorDir}/${node.relPath}`
+    setSelectedFile({ relPath: node.relPath, srcPath, destPath })
+    updateProgress(node.relPath, 'translating')
+    await window.electronAPI.translateFile(srcPath, srcDir, translatorDir, settings)
+  }
+
   return (
-    <button onClick={handleClick} title={node.relPath} style={{
-      width: '100%', display: 'flex', alignItems: 'center', gap: 6,
-      paddingLeft: pl, paddingRight: 10, paddingTop: 7, paddingBottom: 7,
-      background: isSelected ? 'rgba(16,185,129,0.1)' : 'none',
-      border: isSelected ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
-      borderRadius: 8, cursor: 'pointer', textAlign: 'left', transition: 'all .15s',
-    }}
-      onMouseEnter={e => { if (!isSelected) { e.currentTarget.style.background = 'var(--bg-mid)'; e.currentTarget.style.borderColor = 'var(--border)' } }}
-      onMouseLeave={e => { if (!isSelected) { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'transparent' } }}
+    <div
+      style={{
+        display: 'flex', alignItems: 'center',
+        paddingLeft: pl, paddingRight: 6, paddingTop: 3, paddingBottom: 3,
+        borderRadius: 8,
+        background: isSelected ? 'rgba(16,185,129,0.1)' : 'none',
+        border: isSelected ? '1px solid rgba(16,185,129,0.2)' : '1px solid transparent',
+        transition: 'all .15s',
+      }}
+      onMouseEnter={e => {
+        if (!isSelected) { e.currentTarget.style.background = 'var(--bg-mid)'; e.currentTarget.style.borderColor = 'var(--border)' }
+        e.currentTarget.querySelector('.retranslate-btn').style.opacity = '1'
+      }}
+      onMouseLeave={e => {
+        if (!isSelected) { e.currentTarget.style.background = 'none'; e.currentTarget.style.borderColor = 'transparent' }
+        e.currentTarget.querySelector('.retranslate-btn').style.opacity = '0'
+      }}
     >
-      <i className="fa fa-file-text-o" style={{ color: cfg.color, fontSize: 12, flexShrink: 0 }} />
-      <span style={{ fontSize: 13, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-        {node.name}
-      </span>
-      <i className={`fa ${cfg.icon}${cfg.spin ? ' fa-spin' : ''}`} style={{ color: cfg.color, fontSize: 11, flexShrink: 0 }} />
-    </button>
+      {/* Main click area */}
+      <button onClick={handleClick} title={node.relPath} style={{
+        flex: 1, display: 'flex', alignItems: 'center', gap: 6,
+        paddingTop: 4, paddingBottom: 4, paddingRight: 4,
+        background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', minWidth: 0,
+      }}>
+        <i className="fa fa-file-text-o" style={{ color: cfg.color, fontSize: 12, flexShrink: 0 }} />
+        <span style={{ fontSize: 13, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {node.name}
+        </span>
+        <i className={`fa ${cfg.icon}${cfg.spin ? ' fa-spin' : ''}`} style={{ color: cfg.color, fontSize: 11, flexShrink: 0 }} />
+      </button>
+
+      {/* Retranslate button — visible on hover */}
+      <button
+        className="retranslate-btn"
+        onClick={handleRetranslate}
+        title="重新翻译"
+        style={{
+          width: 22, height: 22, flexShrink: 0, marginLeft: 2,
+          background: 'none', border: 'none', borderRadius: 4,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: isTranslating ? 'not-allowed' : 'pointer',
+          opacity: 0, transition: 'opacity .15s, background .15s',
+        }}
+        onMouseEnter={e => { if (!isTranslating) e.currentTarget.style.background = 'rgba(59,130,246,0.15)' }}
+        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+      >
+        <i className={`fa fa-repeat${isTranslating ? ' fa-spin' : ''}`} style={{ color: '#3B82F6', fontSize: 10 }} />
+      </button>
+    </div>
   )
 }
 

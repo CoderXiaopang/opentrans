@@ -1,6 +1,6 @@
 # OpenTrans
 
-> 开源项目 Markdown 双语翻译工具 —— 基于 AI 的批量翻译 + 双栏对照阅读 + 实时校对
+> 很多优秀的开源框架只有英文文档，机器翻译准确率低，在翻译网页和代码编辑器之间来回切换更是打断思路。OpenTrans 让你在本地用 AI 批量翻译项目 Markdown 文档，双栏对照原文阅读，告别上下文切换。
 
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-blue)
 ![Electron](https://img.shields.io/badge/Electron-28-47848F?logo=electron)
@@ -21,7 +21,8 @@
 
 ## 截图
 
-> *(发布后可在此处插入截图)*
+![img_1.png](img_1.png)
+![img_2.png](img_2.png)
 
 ## 下载安装
 

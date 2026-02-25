@@ -1,13 +1,21 @@
 import { create } from 'zustand'
 
-const STORAGE_KEY = 'opentrans_settings'
-const THEME_KEY   = 'opentrans_theme'
+const STORAGE_KEY   = 'opentrans_settings'
+const PROFILES_KEY  = 'opentrans_profiles'
+const THEME_KEY     = 'opentrans_theme'
 
 function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? JSON.parse(raw) : {}
   } catch { return {} }
+}
+
+function loadProfiles() {
+  try {
+    const raw = localStorage.getItem(PROFILES_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
 }
 
 function loadTheme() {
@@ -20,20 +28,12 @@ function applyTheme(theme) {
 }
 
 const useStore = create((set, get) => ({
-  // Project paths
   srcDir: null,
   translatorDir: null,
-
-  // File tree
   fileTree: [],
-
-  // Selected file
   selectedFile: null,
-
-  // Translation progress map: relPath -> status
   progressMap: {},
 
-  // Settings / API config
   settings: {
     baseUrl: 'https://api.openai.com/v1',
     apiKey: '',
@@ -42,12 +42,12 @@ const useStore = create((set, get) => ({
     ...loadSettings()
   },
 
-  settingsOpen: false,
+  // 多配置档案
+  profiles: loadProfiles(),
 
-  // Theme
+  settingsOpen: false,
   theme: loadTheme(),
 
-  // Actions
   setSrcDir: (dir) => set({ srcDir: dir }),
   setTranslatorDir: (dir) => set({ translatorDir: dir }),
   setFileTree: (tree) => set({ fileTree: tree }),
@@ -64,6 +64,33 @@ const useStore = create((set, get) => ({
     set({ settings })
   },
 
+  // 保存当前配置为档案
+  saveProfile: (name) => set((state) => {
+    const profile = { name, ...state.settings }
+    const existing = state.profiles.findIndex(p => p.name === name)
+    const profiles = existing >= 0
+      ? state.profiles.map((p, i) => i === existing ? profile : p)
+      : [...state.profiles, profile]
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+    return { profiles }
+  }),
+
+  // 应用某个档案
+  applyProfile: (name) => set((state) => {
+    const profile = state.profiles.find(p => p.name === name)
+    if (!profile) return {}
+    const { name: _, ...settings } = profile
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings))
+    return { settings }
+  }),
+
+  // 删除档案
+  deleteProfile: (name) => set((state) => {
+    const profiles = state.profiles.filter(p => p.name !== name)
+    localStorage.setItem(PROFILES_KEY, JSON.stringify(profiles))
+    return { profiles }
+  }),
+
   openSettings:  () => set({ settingsOpen: true }),
   closeSettings: () => set({ settingsOpen: false }),
 
@@ -76,12 +103,8 @@ const useStore = create((set, get) => ({
 
 function updateTreeStatus(tree, relPath, status) {
   return tree.map((node) => {
-    if (node.type === 'file' && node.relPath === relPath) {
-      return { ...node, status }
-    }
-    if (node.type === 'dir' && node.children) {
-      return { ...node, children: updateTreeStatus(node.children, relPath, status) }
-    }
+    if (node.type === 'file' && node.relPath === relPath) return { ...node, status }
+    if (node.type === 'dir' && node.children) return { ...node, children: updateTreeStatus(node.children, relPath, status) }
     return node
   })
 }
