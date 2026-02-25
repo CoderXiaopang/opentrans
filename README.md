@@ -79,16 +79,6 @@ npm run build:win
 npm run build:linux
 ```
 
-## 发布新版本（GitHub Actions 自动打包）
-
-本项目配置了 GitHub Actions，推送 `v` 开头的 Tag 后会自动在 macOS、Windows、Linux 三个平台并行构建，并将安装包发布到 GitHub Releases。
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-等待 Actions 完成后，安装包会自动出现在 Releases 页面。
 
 ## 技术栈
 
