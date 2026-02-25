@@ -66,19 +66,6 @@ npm install
 npm run dev
 ```
 
-### 打包
-
-```bash
-# macOS (.dmg)
-npm run build:mac
-
-# Windows (.exe)
-npm run build:win
-
-# Linux (.AppImage / .deb)
-npm run build:linux
-```
-
 
 ## 技术栈
 
