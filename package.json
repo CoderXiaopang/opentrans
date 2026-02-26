@@ -1,6 +1,6 @@
 {
   "name": "opentrans",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Open source project markdown translator with bilingual preview",
   "author": {
     "name": "CoderXiaopang",
@@ -20,7 +20,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",
     "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
+    "electron-builder": "^25.1.8",
     "electron-vite": "^2.0.0",
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
