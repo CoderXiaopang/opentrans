@@ -25,33 +25,38 @@ function runNextFromQueue() {
 }
 
 function spawnWorker({ filePath, srcDir, translatorDir, win }) {
+  console.log(`[Main] 准备启动 Worker: ${filePath}`)
   activeWorkers++
   const relPath = relative(srcDir, filePath)
   const destPath = join(translatorDir, relPath)
   const srcContent = readFileSync(filePath, 'utf8')
 
-  win.webContents.send('translation-progress', { relPath, status: 'translating' })
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('translation-progress', { relPath, status: 'translating' })
+  }
 
-  // The worker script is an extra entry; electron-vite copies it to out/main/
   const workerPath = join(__dirname, 'translationWorker.js')
   const worker = new Worker(workerPath, {
     workerData: { filePath, srcContent, apiConfig, destPath }
   })
 
   worker.on('message', (msg) => {
+    console.log(`[Main] Worker 消息 [${relPath}]:`, msg.status)
+    if (msg.status === 'chunk-progress') return
     activeWorkers--
     const status = msg.status === 'done' ? 'translated' : 'error'
     updateFileStatus(translatorDir, relPath, status)
-    if (!win.isDestroyed()) {
+    if (win && !win.isDestroyed()) {
       win.webContents.send('translation-progress', { relPath, status, error: msg.error })
     }
     runNextFromQueue()
   })
 
   worker.on('error', (err) => {
+    console.error(`[Main] Worker 错误 [${relPath}]:`, err)
     activeWorkers--
     updateFileStatus(translatorDir, relPath, 'error')
-    if (!win.isDestroyed()) {
+    if (win && !win.isDestroyed()) {
       win.webContents.send('translation-progress', { relPath, status: 'error', error: err.message })
     }
     runNextFromQueue()
