@@ -15,11 +15,11 @@
     "category": "public.app-category.developer-tools"
   },
   "dmg": {
-    "title": "OpenTrans",
+    "title": "OpenTrans-Installer",
     "contents": [
       { "x": 130, "y": 220 },
       { "x": 410, "y": 220, "type": "link", "path": "/Applications" },
-      { "x": 270, "y": 350, "path": "fix-macos-gatekeeper.command" }
+      { "x": 270, "y": 350, "path": "build/fix-macos.command" }
     ]
   },
   "win": {
