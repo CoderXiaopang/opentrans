@@ -12,7 +12,7 @@ export default function SettingsModal() {
     const { name, value } = e.target
     setForm(prev => ({
       ...prev,
-      [name]: name === 'concurrency' ? parseInt(value, 10) || 1 : value
+      [name]: (name === 'concurrency' || name === 'chunkSize') ? parseInt(value, 10) || 1 : value
     }))
   }
 
@@ -116,6 +116,19 @@ export default function SettingsModal() {
                   />
                 </div>
               ))}
+              <div>
+                <label style={labelStyle}>
+                  <i className="fa fa-scissors" style={{ color: 'rgba(59,130,246,0.7)' }} />单块最大字符数
+                </label>
+                <input
+                  name="chunkSize" type="number" min={1000} step={1000}
+                  value={form.chunkSize ?? 12000} onChange={handleChange}
+                  placeholder="12000"
+                  style={inputStyle}
+                  onFocus={e => { e.target.style.borderColor = '#3B82F6'; e.target.style.boxShadow = '0 0 0 3px rgba(59,130,246,0.15)' }}
+                  onBlur={e =>  { e.target.style.borderColor = 'var(--border-solid)'; e.target.style.boxShadow = 'none' }}
+                />
+              </div>
               <div>
                 <label style={labelStyle}>
                   <i className="fa fa-tasks" style={{ color: 'rgba(59,130,246,0.7)' }} />默认并发数

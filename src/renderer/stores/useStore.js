@@ -39,6 +39,7 @@ const useStore = create((set, get) => ({
     apiKey: '',
     model: 'gpt-4o-mini',
     concurrency: 3,
+    chunkSize: 12000,
     ...loadSettings()
   },
 
