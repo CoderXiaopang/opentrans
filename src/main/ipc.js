@@ -1,4 +1,4 @@
-import { ipcMain, dialog } from 'electron'
+import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { join, relative, dirname, basename } from 'path'
 import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'fs'
 import { Worker } from 'worker_threads'
@@ -72,9 +72,12 @@ function enqueue(filePath, srcDir, translatorDir, win, priority = false) {
   runNextFromQueue()
 }
 
-export function registerIpcHandlers(win) {
+export function registerIpcHandlers() {
+  function getWin() {
+    return BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0]
+  }
   ipcMain.handle('select-directory', async () => {
-    const result = await dialog.showOpenDialog(win, { properties: ['openDirectory'] })
+    const result = await dialog.showOpenDialog(getWin(), { properties: ['openDirectory'] })
     if (result.canceled) return null
     return result.filePaths[0]
   })
@@ -101,7 +104,7 @@ export function registerIpcHandlers(win) {
 
   ipcMain.handle('translate-file', async (_e, filePath, srcDir, translatorDir, settings) => {
     if (settings) { apiConfig = settings; concurrency = settings.concurrency || 3 }
-    enqueue(filePath, srcDir, translatorDir, win, true)
+    enqueue(filePath, srcDir, translatorDir, getWin(), true)
     return { success: true }
   })
 
@@ -135,7 +138,7 @@ export function registerIpcHandlers(win) {
       function enqueueTree(nodes) {
         for (const node of nodes) {
           if (node.type === 'file' && node.status !== 'translated') {
-            enqueue(join(srcDir, node.relPath), srcDir, translatorDir, win, false)
+            enqueue(join(srcDir, node.relPath), srcDir, translatorDir, getWin(), false)
           } else if (node.type === 'dir' && node.children) {
             enqueueTree(node.children)
           }

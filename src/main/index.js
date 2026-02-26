@@ -35,13 +35,12 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
-  const win = createWindow()
-  registerIpcHandlers(win)
+  createWindow()
+  registerIpcHandlers()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      const newWin = createWindow()
-      registerIpcHandlers(newWin)
+      createWindow()
     }
   })
 })
