@@ -38,7 +38,7 @@ function convertWikiToMarkdown(content) {
 // ─────────────────────────────────────────────
 // Step 2: Split markdown into chunks by heading hierarchy
 // ─────────────────────────────────────────────
-function splitMarkdownIntoChunks(content, maxSize = MAX_CHUNK_SIZE, level = 1) {
+function splitMarkdownIntoChunks(content, maxSize = DEFAULT_CHUNK_SIZE, level = 1) {
   // Base cases: fits in one chunk, or no more heading levels to try
   if (content.length <= maxSize || level > 6) return [content]
 
